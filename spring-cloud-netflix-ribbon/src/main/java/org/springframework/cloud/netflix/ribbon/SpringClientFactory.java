@@ -40,6 +40,11 @@ public class SpringClientFactory extends NamedContextFactory<RibbonClientSpecifi
 	static final String NAMESPACE = "ribbon";
 
 	public SpringClientFactory() {
+		/**
+		 * 使用RibbonClientConfiguration这个配置类，后面RibbonLoadBalancerClient执行execute方法的过程中，
+		 * getLoadBalancer方法中，会去创建一个AnnotationConfigApplicationContext上下文对象，
+		 * 这个上下文对象会调用register方法，入参就是RibbonClientConfiguration.class
+		 */
 		super(RibbonClientConfiguration.class, NAMESPACE, "ribbon.client.name");
 	}
 

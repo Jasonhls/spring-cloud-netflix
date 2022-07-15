@@ -27,6 +27,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * @author Dave Syer
+ * 在@RibbonClient注解和@RibbonClients注解上被import到Spring容器中了
  */
 public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionRegistrar {
 
@@ -36,8 +37,10 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 		Map<String, Object> attrs = metadata
 				.getAnnotationAttributes(RibbonClients.class.getName(), true);
 		if (attrs != null && attrs.containsKey("value")) {
+			//获取@RibbonClients注解中的value，是多个@RibbonClient
 			AnnotationAttributes[] clients = (AnnotationAttributes[]) attrs.get("value");
 			for (AnnotationAttributes client : clients) {
+				//获取@RibbonClient注解属性configuration上的配置并注册为bean
 				registerClientConfiguration(registry, getClientName(client),
 						client.get("configuration"));
 			}
@@ -50,6 +53,7 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 			else {
 				name = "default." + metadata.getClassName();
 			}
+			//获取@RibbonClients注解属性defaultConfiguration上的配置并注册为bean, bean名称以default.开头
 			registerClientConfiguration(registry, name,
 					attrs.get("defaultConfiguration"));
 		}
@@ -57,6 +61,7 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 				.getAnnotationAttributes(RibbonClient.class.getName(), true);
 		String name = getClientName(client);
 		if (name != null) {
+			//获取@RibbonClient注解属性configuration上的配置并注册为bean
 			registerClientConfiguration(registry, name, client.get("configuration"));
 		}
 	}
@@ -78,6 +83,7 @@ public class RibbonClientConfigurationRegistrar implements ImportBeanDefinitionR
 
 	private void registerClientConfiguration(BeanDefinitionRegistry registry, Object name,
 			Object configuration) {
+		//将RibbonClientSpecification注册到Spring容器中
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder
 				.genericBeanDefinition(RibbonClientSpecification.class);
 		builder.addConstructorArgValue(name);

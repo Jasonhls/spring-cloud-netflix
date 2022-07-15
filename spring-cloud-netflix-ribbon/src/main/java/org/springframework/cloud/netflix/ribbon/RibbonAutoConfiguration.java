@@ -69,6 +69,7 @@ import org.springframework.web.client.RestTemplate;
 		havingValue = "true", matchIfMissing = true)
 public class RibbonAutoConfiguration {
 
+	//引入Spring容器中所有的RibbonClientSpecification集合
 	@Autowired(required = false)
 	private List<RibbonClientSpecification> configurations = new ArrayList<>();
 
@@ -84,6 +85,7 @@ public class RibbonAutoConfiguration {
 	@ConditionalOnMissingBean
 	public SpringClientFactory springClientFactory() {
 		SpringClientFactory factory = new SpringClientFactory();
+		//将Spring容器中所有为RibbonClientSpecification类型的bean设置到SpringClientFactory的父类NamedContextFactory的configurations属性中
 		factory.setConfigurations(this.configurations);
 		return factory;
 	}
@@ -91,6 +93,7 @@ public class RibbonAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean(LoadBalancerClient.class)
 	public LoadBalancerClient loadBalancerClient() {
+		// SpringClientFactory对象被传入到RibbonLoadBalancerClient的属性clientFactory中
 		return new RibbonLoadBalancerClient(springClientFactory());
 	}
 

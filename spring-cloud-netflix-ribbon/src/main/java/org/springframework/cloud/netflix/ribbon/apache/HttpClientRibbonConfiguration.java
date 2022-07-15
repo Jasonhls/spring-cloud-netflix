@@ -52,12 +52,15 @@ import org.springframework.context.annotation.Configuration;
  */
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnClass(name = "org.apache.http.client.HttpClient")
+//matchIfMissing=true表示，如果没有配置ribbon.httpclient.enabled的值，也会加载HttpClientRibbonConfiguration这个配置类
+//如果有配置ribbon.httpclient.enabled的值，更会加载，即默认会加载HttpClientRibbonConfiguration这个配置类
 @ConditionalOnProperty(name = "ribbon.httpclient.enabled", matchIfMissing = true)
 public class HttpClientRibbonConfiguration {
 
 	@RibbonClientName
 	private String name = "client";
 
+	//注入AbstractLoadBalancerAwareClient子类RibbonLoadBalancingHttpClient对象
 	@Bean
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	@ConditionalOnMissingClass("org.springframework.retry.support.RetryTemplate")
@@ -73,6 +76,7 @@ public class HttpClientRibbonConfiguration {
 		return client;
 	}
 
+	//注入AbstractLoadBalancerAwareClient子类RetryableRibbonLoadBalancingHttpClient用于重试的
 	@Bean
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")

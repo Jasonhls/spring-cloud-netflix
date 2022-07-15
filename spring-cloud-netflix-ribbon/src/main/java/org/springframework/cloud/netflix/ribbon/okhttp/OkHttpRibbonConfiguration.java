@@ -53,6 +53,7 @@ public class OkHttpRibbonConfiguration {
 	@RibbonClientName
 	private String name = "client";
 
+	//注入AbstractLoadBalancerAwareClient子类RetryableOkHttpLoadBalancingClient用于重试的
 	@Bean
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	@ConditionalOnClass(name = "org.springframework.retry.support.RetryTemplate")
@@ -70,6 +71,7 @@ public class OkHttpRibbonConfiguration {
 		return client;
 	}
 
+	//注入AbstractLoadBalancerAwareClient子类OkHttpLoadBalancingClient
 	@Bean
 	@ConditionalOnMissingBean(AbstractLoadBalancerAwareClient.class)
 	@ConditionalOnMissingClass("org.springframework.retry.support.RetryTemplate")

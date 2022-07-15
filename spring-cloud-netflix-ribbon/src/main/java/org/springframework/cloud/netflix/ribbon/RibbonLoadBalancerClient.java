@@ -52,6 +52,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	public URI reconstructURI(ServiceInstance instance, URI original) {
 		Assert.notNull(instance, "instance can not be null");
 		String serviceId = instance.getServiceId();
+		//通过SpringClientFactory，从子上下文中取出RibbonLoadBalancerContext实例对象
 		RibbonLoadBalancerContext context = this.clientFactory
 				.getLoadBalancerContext(serviceId);
 
@@ -70,6 +71,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 			uri = updateToSecureConnectionIfNeeded(original, clientConfig,
 					serverIntrospector, server);
 		}
+		//调用父类LoadBalancerContext的reconstructURIWithServer方法
 		return context.reconstructURIWithServer(server, uri);
 	}
 
@@ -113,7 +115,15 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 	 */
 	public <T> T execute(String serviceId, LoadBalancerRequest<T> request, Object hint)
 			throws IOException {
+		/**
+		 * 1.获取负载均衡器，这里获取的是ILoadBalancer.class类型的bean，在RibbonClientConfiguration中默认会向spring中注入ZoneAwareLoadBalancer对象
+		 */
 		ILoadBalancer loadBalancer = getLoadBalancer(serviceId);
+		/**
+		 * 2.通过负责均衡器中配置的默认负载均衡算法选一个合适的Server
+		 * 这里的loadBalancer为ZoneAwareLoadBalancer对象，
+		 * 在RibbonClientConfiguration中默认注入的IRule为ZoneAvoidanceRule对象
+		 */
 		Server server = getServer(loadBalancer, hint);
 		if (server == null) {
 			throw new IllegalStateException("No instances available for " + serviceId);
@@ -141,6 +151,9 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 		RibbonStatsRecorder statsRecorder = new RibbonStatsRecorder(context, server);
 
 		try {
+			/**
+			 * 调用LoadBalancerRequest的apply方法
+			 */
 			T returnVal = request.apply(serviceInstance);
 			statsRecorder.recordStats(returnVal);
 			return returnVal;
@@ -186,6 +199,7 @@ public class RibbonLoadBalancerClient implements LoadBalancerClient {
 			return null;
 		}
 		// Use 'default' on a null hint, or just pass it on?
+		//这里的loadBalancer默认是ZoneAwareLoadBalancer对象
 		return loadBalancer.chooseServer(hint != null ? hint : "default");
 	}
 

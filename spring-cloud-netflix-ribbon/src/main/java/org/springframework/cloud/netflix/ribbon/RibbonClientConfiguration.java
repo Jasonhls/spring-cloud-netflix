@@ -123,6 +123,8 @@ public class RibbonClientConfiguration {
 				defaultConnectTimeout);
 	}
 
+	// 默认的IRule，默认为ZoneAvoidanceRule
+	// 使用了ConditionalOnMissingBean，当自定义实现bean的时候，默认的配置就不会被加载了
 	@Bean
 	@ConditionalOnMissingBean
 	public IRule ribbonRule(IClientConfig config) {
@@ -134,6 +136,7 @@ public class RibbonClientConfiguration {
 		return rule;
 	}
 
+	// 默认的IPing实现，默认为：DummyPing
 	@Bean
 	@ConditionalOnMissingBean
 	public IPing ribbonPing(IClientConfig config) {
@@ -143,6 +146,7 @@ public class RibbonClientConfiguration {
 		return new DummyPing();
 	}
 
+	//注入ServerList类型的bean，默认的为ConfigurationBasedServerList对象
 	@Bean
 	@ConditionalOnMissingBean
 	@SuppressWarnings("unchecked")
@@ -155,12 +159,14 @@ public class RibbonClientConfiguration {
 		return serverList;
 	}
 
+	//注入的ServerListUpdater为PollingServerListUpdater对象
 	@Bean
 	@ConditionalOnMissingBean
 	public ServerListUpdater ribbonServerListUpdater(IClientConfig config) {
 		return new PollingServerListUpdater(config);
 	}
 
+	// 默认的ILoadBalancer，默认为ZoneAwareLoadBalancer
 	@Bean
 	@ConditionalOnMissingBean
 	public ILoadBalancer ribbonLoadBalancer(IClientConfig config,
@@ -169,6 +175,8 @@ public class RibbonClientConfiguration {
 		if (this.propertiesFactory.isSet(ILoadBalancer.class, name)) {
 			return this.propertiesFactory.get(ILoadBalancer.class, config, name);
 		}
+		// 将IRule和IPing作为参数
+		//这里的serverListUpdater默认是PollingServerListUpdater对象
 		return new ZoneAwareLoadBalancer<>(config, rule, ping, serverList,
 				serverListFilter, serverListUpdater);
 	}
@@ -185,6 +193,7 @@ public class RibbonClientConfiguration {
 		return filter;
 	}
 
+	// Ribbon负载均衡的上下文
 	@Bean
 	@ConditionalOnMissingBean
 	public RibbonLoadBalancerContext ribbonLoadBalancerContext(ILoadBalancer loadBalancer,

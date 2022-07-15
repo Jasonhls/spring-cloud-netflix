@@ -80,6 +80,7 @@ public class RibbonLoadBalancingHttpClient extends
 
 		request = getSecureRequest(request, configOverride);
 		final HttpUriRequest httpUriRequest = request.toRequest(requestConfig);
+		//通过 apache httpclient的CloseableHttpClient api发送远程调用
 		final HttpResponse httpResponse = this.delegate.execute(httpUriRequest);
 		return new RibbonApacheHttpResponse(httpResponse, httpUriRequest.getURI());
 	}
