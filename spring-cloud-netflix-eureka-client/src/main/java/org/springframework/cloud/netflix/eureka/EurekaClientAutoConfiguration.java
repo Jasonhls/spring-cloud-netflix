@@ -107,6 +107,7 @@ public class EurekaClientAutoConfiguration {
 		return HasFeatures.namedFeature("Eureka Client", EurekaClient.class);
 	}
 
+	//向spring容器中注入的EurekaClientConfig类型为EurekaClientConfigBean对象
 	@Bean
 	@ConditionalOnMissingBean(value = EurekaClientConfig.class,
 			search = SearchStrategy.CURRENT)

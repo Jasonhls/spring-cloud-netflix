@@ -84,6 +84,8 @@ public class RibbonAutoConfiguration {
 	@Bean
 	@ConditionalOnMissingBean
 	public SpringClientFactory springClientFactory() {
+		//SpringClientFactory的无参构造函数中，会把RibbonClientConfiguration.class赋值给其父类NamedContextFactory的属性defaultConfigType
+		//在它的createContext方法中创建上下文的时候，然后会把defaultConfigType作为配置类注册这个bean到Spring容器中。
 		SpringClientFactory factory = new SpringClientFactory();
 		//将Spring容器中所有为RibbonClientSpecification类型的bean设置到SpringClientFactory的父类NamedContextFactory的configurations属性中
 		factory.setConfigurations(this.configurations);
